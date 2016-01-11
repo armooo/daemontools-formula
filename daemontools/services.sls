@@ -4,24 +4,24 @@
 
 daemontools_service_{{ service }}_dir:
   file.directory:
-    - name: {{ settings.service_dir }}
+    - name: {{ settings.service_dir }}/{{ service }}
     - user: {{ settings.user }}
 
 daemontools_service_{{ service }}_run_file:
   file.managed:
-    - name: {{ settings.service_dir }}/run
+    - name: {{ settings.service_dir }}/{{ service }}/run
     - contents_pillar: daemontools:services:{{ service }}:run
     - user: {{ settings.user }}
     - mode: 755
 
 daemontools_service_{{ service }}_log_dir:
   file.directory:
-    - name: {{ settings.service_dir }}/log
+    - name: {{ settings.service_dir }}/{{ service }}/log
     - user: {{ settings.user }}
 
 daemontools_service_{{ service }}_log_file:
   file.managed:
-    - name: {{ settings.service_dir }}/log/run
+    - name: {{ settings.service_dir }}{{ service }}/log/run
     - user: {{ settings.user }}
     - mode: 755
 {% if 'log' in settings %}
@@ -35,19 +35,19 @@ daemontools_service_{{ service }}_log_file:
 daemontools_service_{{ service }}_link:
   file.symlink:
     - name: {{ daemontools.lookup.service_path }}/{{ service }}
-    - target: {{ settings.service_dir }}
+    - target: {{ settings.service_dir }}/{{ service }}
 
 daemontools_{{ service }}_log_restart:
   cmd.wait:
-    - name: svc -t {{ settings.service_dir }}/log
+    - name: svc -t {{ settings.service_dir }}/{{ service }}/log
     - listen:
-      - file: {{ settings.service_dir }}/log/run
+      - file: {{ settings.service_dir }}/{{ service }}/log/run
 
 daemontools_{{ service }}:
   service.running:
     - name: {{ service }}
     - provider: daemontools
     - listen:
-      - file: {{ settings.service_dir }}/run
+      - file: {{ settings.service_dir }}/{{ service }}/run
 
 {% endfor %}
